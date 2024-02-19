@@ -4,9 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:ingressos_app/controller/ingresso_controller.dart';
 import 'package:ingressos_app/model/ingresso.dart';
 import 'package:ingressos_app/repository/impl/ingresso_repository_impl.dart';
+import 'dart:convert' show utf8;
 
 class ListViewIngressos extends StatelessWidget {
-  const ListViewIngressos({Key? key});
+  const ListViewIngressos({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +16,9 @@ class ListViewIngressos extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ingressos disponíveis'),
-        foregroundColor: Colors.white,
         centerTitle: true,
         backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<Ingresso>>(
         future: ingressoController.findAll(),
@@ -70,7 +71,7 @@ class ListViewIngressos extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                ingresso.descricao ?? '',
+                                utf8.decode(ingresso.descricao.toString().codeUnits) ?? '',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -79,7 +80,7 @@ class ListViewIngressos extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                ingresso.localEvento ?? '',
+                                utf8.decode(ingresso.localEvento.toString().codeUnits) ?? '',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -137,7 +138,7 @@ class ListViewIngressos extends StatelessWidget {
 
   Future<void> _redirecionarParaLinkPagamento(String urlParameter) async {
     Uri url = Uri.parse(urlParameter);
-    if (!await launchUrl(url)) {
+    if (!await launch(url.toString())) {
       throw Exception('Could not launch $url');
     }
   }
