@@ -1,0 +1,4 @@
+enum EUserRole {
+  ADMIN,
+  USER,
+}
