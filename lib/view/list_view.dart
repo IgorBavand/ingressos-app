@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:ingressos_app/view/autenticacao/autenticacao_view.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ingressos_app/controller/ingresso_controller.dart';
@@ -7,7 +9,9 @@ import 'package:ingressos_app/repository/impl/ingresso_repository_impl.dart';
 import 'dart:convert' show utf8;
 
 class ListViewIngressos extends StatelessWidget {
+
   const ListViewIngressos({Key? key}) : super(key: key);
+  static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +23,45 @@ class ListViewIngressos extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              _deslogar();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AutenticacaoView()));
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'user',
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: Colors.teal),
+                    SizedBox(width: 8),
+                    Text(
+                      "igor",
+                      style: TextStyle(color: Colors.teal),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.exit_to_app, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text(
+                      'Deslogar',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: FutureBuilder<List<Ingresso>>(
         future: ingressoController.findAll(),
@@ -63,7 +106,8 @@ class ListViewIngressos extends StatelessWidget {
                             color: Colors.teal,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.attach_money, color: Colors.white),
+                          child: const Icon(Icons.attach_money,
+                              color: Colors.white),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -71,7 +115,10 @@ class ListViewIngressos extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                utf8.decode(ingresso.descricao.toString().codeUnits) ?? '',
+                                utf8.decode(ingresso.descricao
+                                    .toString()
+                                    .codeUnits) ??
+                                    '',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -80,7 +127,10 @@ class ListViewIngressos extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                utf8.decode(ingresso.localEvento.toString().codeUnits) ?? '',
+                                utf8.decode(ingresso.localEvento
+                                    .toString()
+                                    .codeUnits) ??
+                                    '',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -106,7 +156,8 @@ class ListViewIngressos extends StatelessWidget {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: () => _comprarIngresso(context, ingresso.id!),
+                          onPressed: () =>
+                              _comprarIngresso(context, ingresso.id!),
                           style: ElevatedButton.styleFrom(
                             // primary: Colors.indigo,
                             shape: RoundedRectangleBorder(
@@ -134,6 +185,12 @@ class ListViewIngressos extends StatelessWidget {
     var ingressoController = IngressoController(IngressoRepositoryImpl());
     var url = await ingressoController.comprarIngresso(1, ingressoId);
     _redirecionarParaLinkPagamento(url);
+  }
+
+  Future<void> _deslogar() async {
+    await _storage.delete(key: "token");
+    await _storage.delete(key: "login");
+    await _storage.delete(key: "password");
   }
 
   Future<void> _redirecionarParaLinkPagamento(String urlParameter) async {
