@@ -10,4 +10,8 @@ class UsuarioController {
   Future<http.Response> cadastrarUsuario(UsuarioDto UsuarioDto) async {
     return await _repository.resgistrarUsuario(UsuarioDto);
   }
+
+  Future<http.Response> checkUser() async {
+    return await _repository.checkUser();
+  }
 }
